@@ -89,31 +89,127 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # Resource: https://www.cs.rpi.edu/~xial/Teaching/2020SAI/slides/IntroAI_2.pdf
+    # print("Start:", problem.getStartState())
+    # print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
+    # print("Start's successors:", problem.getSuccessors(problem.getStartState()))
+    
+    # the goal is state can be checked using isGoalState()
+    path = []
+    visited = set()
+    # stack as fringe
+    stack = util.Stack()
+    stack.push((problem.getStartState(), []))
+    while not stack.isEmpty():
+        curr, path = stack.pop()
+        if problem.isGoalState(curr):
+            return path
+        if curr in visited:
+            continue    
+        visited.add(curr)
+        # if not, expand v, insert resulting nodes into fringe, mark s as visited
+        # Returns successor states, the actions they require, and a cost of 1.
+        successors = problem.getSuccessors(curr)
+        for new_state, action, cost in successors:
+            if new_state not in visited:
+                new_path = path + [action]
+                stack.push((new_state, new_path))
+    return []
+    # util.raiseNotDefined()
+
 
 def breadthFirstSearch(problem):
     """
     Search the shallowest nodes in the search tree first.
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    """Never expand a node whose state has been visited
+    Fringe can be maintained as a First-In-First-Out (FIFO)
+    queue (class Queue in util.py)
+    Maintain a set of visited states
+    fringe := {node corresponding to initial state}
+    loop:
+    • if fringe empty, declare failure
+    • choose and remove the top node v from fringe
+    • check if v’s state s is a goal state; if so, declare success
+    • if v’s state has been visited before, skip
+    • if not, expand v, insert resulting nodes into fringe, mark s as visited"""
+
+    path = []
+    visited = set()
+    # queue as fringe 
+    queue = util.Queue()
+    queue.push((problem.getStartState(), []))
+    while not queue.isEmpty():
+        curr, path = queue.pop()
+        if problem.isGoalState(curr):
+            return path
+        if curr in visited:
+            continue
+        visited.add(curr)
+        successors = problem.getSuccessors(curr)
+        for new_state, action, cost in successors:
+            if new_state not in visited:
+                new_path = path + [action]
+                queue.push((new_state, new_path))
+    return []
+
 
 def uniformCostSearch(problem):
     "Search the node of least total cost first. "
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    visited = set()
+    # def push(self, item, priority):
+    pq = util.PriorityQueue()
+    pq.push((problem.getStartState(), []), 0)
+
+    while not pq.isEmpty():
+        curr, path = pq.pop()
+        if problem.isGoalState(curr):
+            return path
+        if curr in visited: 
+            continue
+        visited.add(curr)
+        successors = problem.getSuccessors(curr)
+        for new_state, action, c in successors:
+            if new_state not in visited:
+                cost = problem.getCostOfActions(path + [action])
+                pq.push((new_state, path + [action]), cost)
+    return []
 
 def nullHeuristic(state, problem=None):
     """
     A heuristic function estimates the cost from the current state to the nearest
     goal in the provided SearchProblem.  This heuristic is trivial.
     """
+
+
+
     return 0
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     "Search the node that has the lowest combined cost and heuristic first."
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    visited = set()
+    pq = util.PriorityQueue()
+    pq.push((problem.getStartState(), []), 0)
+    
+    while not pq.isEmpty():
+        curr, path = pq.pop()
+        if problem.isGoalState(curr): 
+            return path
+        if curr in visited:
+            continue
+        visited.add(curr)
+        successors = problem.getSuccessors(curr)
+        for new_state, action, c in successors:
+            # insert resulting nodes with f(v)=g(v)+h(v) to fringe
+            gv = problem.getCostOfActions(path + [action])
+            hv = heuristic(new_state, problem)
+            pq.push((new_state, path + [action]), gv + hv)
+    return []
+            
+            
 
 
 # Abbreviations
